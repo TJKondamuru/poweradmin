@@ -22,10 +22,10 @@ steps:
 - task: FtpUpload@2
   inputs:
     credentialsOption: 'inputs'
-    serverUrl: 'xfer.lkqcorp.com'
+    serverUrl: 'ftp://xfer.lkqcorp.com'
     username: 'PgwagAbcQua'
     password: 'hRtYuVmxrgst'
-    rootDirectory: '/build'
+    rootDirectory: './build'
     filePatterns: '**'
     remoteDirectory: '/incoming/$(Build.BuildId)/'
     clean: false
