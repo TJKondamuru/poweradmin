@@ -32,11 +32,3 @@ steps:
     cleanContents: false
     preservePaths: false
     trustSSL: false
-
-- task: AzureFileCopy@3
-  inputs:
-    SourcePath: './build'
-    azureSubscription: 'Visual Studio Enterprise(503ca594-6989-4938-bc47-4751dd81a8e9)'
-    Destination: 'AzureBlob'
-    storage: 'burghindianappf8fdc'
-    ContainerName: 'bughindian-power-admin'
