@@ -50,8 +50,8 @@ function ImageResizer(props)
             options['height'] = 600;
         }
         if(optmizer.slide){
-            options['width'] = 800;
-            options['height'] = 600;
+            options['width'] = 525;//800
+            options['height'] = 350;//600
         }
         if(optmizer.thumb){
             options['width'] = 160;
