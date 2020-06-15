@@ -5,7 +5,7 @@ import {electronStore} from './Electron';
 import WireFrame from './WireFrame';
 import OCRForm from './ocr';
 
-const defaultEvent = {heading:'', liner:'', thumb:'', readmore:'', tags:'', trigger:false, id:'100'};
+const defaultEvent = {heading:'', liner:'', thumb:'', readmore:'', tags:'', trigger:false, id:'100', eventid:''};
 
 function Events(props){
     
@@ -17,6 +17,7 @@ function Events(props){
     }
     const [events, setEvents] = useState({});
     const filterPredicate = (key, filter)=>{
+        if(key==='post-id') return false;
         if(filter.length === 0) return true;
         let entry = events[key];
         return (entry.heading.indexOf(filter) > -1 || entry.liner.indexOf(filter) > -1)
@@ -33,11 +34,14 @@ function Events(props){
         callback();
     }
     useEffect(()=>refreshList(()=>{}), []);
+    const savePostId = postid=>{
+        electronStore.saveEvent(props.filename, props.savefilename, {...events, 'post-id' : postid}, false).then(_=>refreshList(()=>{}));
+    }
     const saveEvent= (key, event, callback)=>{
-        const {heading, liner, thumb, readmore, tags} = event;
+        const {heading, liner, thumb, readmore, tags, eventid} = event;
         if(heading.length > 0 && readmore.length > 0)
         {
-            const newobj = {[key]:{heading, liner, thumb, readmore, tags}};
+            const newobj = {[key]:{heading, liner, thumb, readmore, tags, eventid}};
             electronStore.saveEvent(props.filename, props.savefilename, {...events, ...newobj}, 
                 Object.keys(events).length === 0).then(_=>refreshList(()=>{
                 setSelections({...selections, [key]:{...event, id:key}});
@@ -50,13 +54,15 @@ function Events(props){
     const gridcolumns = !!props.gridcolumns ? props.gridcolumns : {heading:val=>gn('Heading', val), liner:val=>gn('Event Desc', val)};
     return(
         <>
-            <WireFrame entries={events} filterPredicate={filterPredicate} setFormobj={setEvent} headerControl={<HeaderControl token={props.token}/>}
+            <WireFrame entries={events} filterPredicate={filterPredicate} setFormobj={setEvent} headerControl={<HeaderControl token={props.token}/>} savePostId={savePostId}
             highlighted={highlighted} homepageTitle={!!props.homepageTitle ? props.homepageTitle : 'home-page-events'} gridcolumns={gridcolumns} customclass="event-grid"
             deleteEntries={{fn:(obj, isEmpty)=>electronStore.saveEvent(props.filename, props.savefilename,obj,isEmpty), rf:()=>refreshList(clearSelectionHighlights)}}
             editcontrol={
                 <div className="row mt-4">
+                    
                     <button className="btn btn-danger" style={{position:"absolute", right:"10px", top:"0px"}} 
                         onClick={clearSelectionHighlights}>Clear All</button>
+
                     {Object.keys(selections).map(key=> 
                         <EventInputForm key={key} key1={key} selected={selections[key]} 
                         saveEvent={saveEvent} />
@@ -116,6 +122,13 @@ function EventInputForm(props){
     return (
         <div className="col-md-4">
             <div className="shadow p-3 mb-3 bg-white rounded">
+                <div className="input-group mb-2 mt-2">
+                    <div className="input-group-prepend"><span className="input-group-text">Id</span></div>
+                    <input type="text" value={form.eventid ? form.eventid : ''} onChange={e=>setForm({...form, eventid:e.target.value})} />
+                    <div className="input-group-append">
+                        <button className="btn btn-small btn-info" onClick={e=>setForm({...form, eventid:Number(new Date())})}>Stamp</button>
+                    </div>
+                </div>
                 <div className="input-group mb-2 mt-2">
                     <div className="input-group-prepend"><span className="input-group-text">Heading</span></div>
                     <input type="text" className={"form-control " + (form.heading.length === 0 && form.trigger ? " is-invalid" : "")}  

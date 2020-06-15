@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {electronStore} from './Electron';
 function WireFrame(props)
 {
-    const {entries, filterPredicate, setFormobj, gridcolumns, customclass, highlighted, homepageTitle, homepageMap, deleteEntries} = props;
+    const {entries, filterPredicate, setFormobj, gridcolumns, customclass, highlighted, homepageTitle, homepageMap, deleteEntries, savePostId} = props;
     
     const [mode,setMode] = useState(1);
 
@@ -74,7 +74,7 @@ function WireFrame(props)
 
                                     </div>
                                 </div>
-                                {mode===1 && <FilesGrid docs={entries} loadForm={loadForm} filterPredicate={filterPredicate} gridcolumns={gridcolumns} 
+                                {mode===1 && <FilesGrid docs={entries} loadForm={loadForm} filterPredicate={filterPredicate} gridcolumns={gridcolumns} savePostId={savePostId}
                                     customclass={customclass} highlighted={highlighted} deleteEntries={deleteEntries} homepageMap={homepageMap}
                                     homeselected={homeselected} setHomeSelected={setHomeSelected} homepageTitle={homepageTitle} exportToHome={exportToHome} 
                                     ></FilesGrid>}
@@ -96,6 +96,8 @@ function FilesGrid(props){
     const [filter, setFilter] = useState('');
     const [page_number, setpage_number] = useState(1);
     const [spinner, setSpinner] = useState(false);
+    const[postid, setPostId] = useState('');
+
     const [exportdelete, setExportDelete] = useState(!(!!homepageTitle || !!deleteEntries) ? {exp:false, del:false} : 
                                                      (!!homepageTitle ? {exp:true, del:false} : {exp:false, del:true})); 
 
@@ -132,13 +134,14 @@ function FilesGrid(props){
     }, [sortedSet, page_size])
 
     const dt = (key)=>{
+        if(isNaN(key))
+            return key;
         let d = new Date(key*1);
         return d.toLocaleDateString() + " " + d.toLocaleTimeString();
     }
 
     return (
         <div className="mt-4">
-            
             <table className={'table table-sm table-striped ' + customclass}>
                 <thead>
                     <tr>
@@ -157,6 +160,7 @@ function FilesGrid(props){
                                         )}
                                     </ul>
                                 </nav>
+                                {props.savePostId && <div className="input-group-prepend"><span className="input-group-text">{docs['post-id'] || ''}</span></div>}
                             </div>
                             <div className="float-right">
                                 {!!homepageTitle && <div className="form-check form-check-inline">
@@ -207,7 +211,11 @@ function FilesGrid(props){
                     )}
                 </tbody>
             </table>
-            
+            {props.savePostId && <div className="input-group mr-3 mb-0 col-4">
+                <div className="input-group-prepend"><span className="input-group-text">Post Id</span></div>
+                <input type="text" className="form-control" value={postid} onChange={e=>setPostId(e.target.value)}   />
+                <button className="btn btn-sm btn-info" onClick={e=>props.savePostId(postid)}>Update post-id</button>
+            </div>}
         </div>
         
     )

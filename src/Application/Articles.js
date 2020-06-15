@@ -6,7 +6,7 @@ import {electronStore} from './Electron';
 import ImageResizer from './ImageResizer';
 import WireFrame from './WireFrame';
 
-const defaultArticle = {heading:'', article:'', id:'', liner:'', readmore:''}
+const defaultArticle = {heading:'', article:'', id:'', liner:'', postid:''}
 
 function Articles(props){
     const [highlighted, setHighlighted] = useState({});
@@ -37,8 +37,8 @@ function Articles(props){
     const gn = (thName, val)=> val==='th'? thName: val;
     
     const saveArticle= (key, articleform, callback)=>{
-        const {heading, article, liner, readmore} = articleform
-        const newobj = {[key]:{heading, article, liner, readmore}};
+        const {heading, article, liner, postid} = articleform
+        const newobj = {[key]:{heading, article, liner, postid}};
             electronStore.saveArticles({...articles, ...newobj}, 
                 Object.keys(articles).length === 0).then(_=>refreshList(()=>{
                 setHighlighted({[key]:'table-info'});
@@ -48,7 +48,7 @@ function Articles(props){
     }
     return(
         <WireFrame entries={articles} filterPredicate={filterPredicate} setFormobj={setArticle} 
-        homepageTitle='home-page-articles' homepageMap = {x=>({heading:x.heading, liner:x.liner, readmore:x.readmore})}
+        homepageTitle='home-page-articles' homepageMap = {x=>({heading:x.heading, liner:x.liner, postid:x.postid})}
         highlighted={highlighted} headerControl={<HeaderControl />}
         gridcolumns={{heading:val=>gn('Article', val)}}
         editcontrol={<ActicleInputForm selected={selectedArticle} saveArticle={saveArticle} clearHighlighted={clearHighlighted} />}
@@ -74,6 +74,7 @@ function HeaderControl(props){
 function ActicleInputForm(props){
     const {selected, saveArticle, clearHighlighted} = props;
     const[spinner, setSpinner] = useState(false);
+    const[readonly, setReadOnly] = useState(false)
     const [form, setForm] = useState({...selected, trigger:false});//
     const [wygState, setwygState] = useState(form.article.length === 0 ? EditorState.createEmpty() :  EditorState.createWithContent(convertFromRaw(JSON.parse(form.article))));
     const getFileBase64 = (file, callback) => {
@@ -103,7 +104,7 @@ function ActicleInputForm(props){
     const saveArticleForm = ()=>{
         let articleText = JSON.stringify(convertToRaw(wygState.getCurrentContent()));
         setForm({...form, trigger:true, article:articleText});
-        if(form.heading.length > 0 && form.liner && form.liner.length > 0 && form.readmore && form.readmore.length > 0)
+        if(form.heading.length > 0 && form.liner && form.liner.length > 0 && form.postid && form.postid.length > 0)
         {
             setSpinner(true);
             let keyid = form.id === '' ? +new Date() : form.id;
@@ -131,10 +132,10 @@ function ActicleInputForm(props){
                         {form.trigger && <div className="invalid-feedback">liner is required</div>}
                     </div>
                     <div className="input-group mb-2 mt-2">
-                        <div className="input-group-prepend"><span className="input-group-text">Readmore</span></div>
-                        <input type="text" className={"form-control " + ((!form.readmore || form.readmore.length === 0) && form.trigger ? " is-invalid" : "")}  
-                        value={!!form.readmore ? form.readmore : ""} onChange={e=>setForm({...form, readmore:e.target.value})} />
-                        {form.trigger && <div className="invalid-feedback">readmore is required</div>}
+                        <div className="input-group-prepend"><span className="input-group-text">postid</span></div>
+                        <input type="text" className={"form-control " + ((!form.postid || form.postid.length === 0) && form.trigger ? " is-invalid" : "")}  
+                        value={!!form.postid ? form.postid : ""} onChange={e=>setForm({...form, postid:e.target.value})} />
+                        {form.trigger && <div className="invalid-feedback">postid is required</div>}
                     </div>
                     <div className="btn-group-lg">
                         <button className="btn-sm btn-outline-primary" onClick={saveArticleForm}>
@@ -148,7 +149,14 @@ function ActicleInputForm(props){
         </div>
         <div className="row">
             <div className="col-11">
-                <Editor editorState={wygState} wrapperClassName="card" editorClassName="card-body wysiwyg editor-images"
+                <div className="input-group mb-1">
+                    <div className="input-group-prepend">
+                        <span className="input-group-text">Readonly</span>
+                        <div className="input-group-text"><input type="checkbox" checked={readonly} onChange={e=>setReadOnly(e.target.checked)} /></div>
+                    </div>
+                </div>
+
+                <Editor editorState={wygState} wrapperClassName="card" editorClassName="card-body wysiwyg editor-images" readOnly={readonly} toolbarHidden={readonly}
                 onEditorStateChange={editorStateChg} toolbar={{image: {uploadCallback: imageUploadCallback,previewImage: true}}}  />
             </div>
         </div>

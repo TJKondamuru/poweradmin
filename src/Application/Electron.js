@@ -81,6 +81,12 @@ export const electronStore = {
     accommodations:()=>storeEntry('house-entries', {}),
     saveAccommodation : (newobj, isEmpty)=>storeEntry('save-house-entry', {newobj, isEmpty}, ['house-entries'], true),
 
+    comments:()=>storeEntry('comment-list', {}),
+    saveComment : (newobj, isEmpty)=>storeEntry('save-comment-list', {newobj, isEmpty}, ['comment-list'], true),
+
+    posts:()=> storeEntry('post-list', {}),
+    savePosts : (newobj, isEmpty)=>storeEntry('save-post-list', {newobj, isEmpty}, ['post-list'], true),
+
     events:(filename)=>storeEntry(!filename ? 'event-entries' : filename + '', {}),
     saveEvent:(filename, savefilename, newobj, isEmpty)=>storeEntry(!savefilename ? 'save-event-entry' : savefilename + '', {newobj, isEmpty}, 
                                                                     [!filename ? 'event-entries' : filename + ''], true),
