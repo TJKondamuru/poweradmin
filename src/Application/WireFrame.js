@@ -2,7 +2,8 @@ import React, {useState, useEffect} from 'react';
 import {electronStore} from './Electron';
 function WireFrame(props)
 {
-    const {entries, filterPredicate, setFormobj, gridcolumns, customclass, highlighted, homepageTitle, homepageMap, deleteEntries, savePostId} = props;
+    const {entries, filterPredicate, setFormobj, gridcolumns, customclass, highlighted, homepageTitle, 
+            homepageMap, deleteEntries, savePostId, keymap} = props;
     
     const [mode,setMode] = useState(1);
 
@@ -77,7 +78,7 @@ function WireFrame(props)
                                 {mode===1 && <FilesGrid docs={entries} loadForm={loadForm} filterPredicate={filterPredicate} gridcolumns={gridcolumns} savePostId={savePostId}
                                     customclass={customclass} highlighted={highlighted} deleteEntries={deleteEntries} homepageMap={homepageMap}
                                     homeselected={homeselected} setHomeSelected={setHomeSelected} homepageTitle={homepageTitle} exportToHome={exportToHome} 
-                                    ></FilesGrid>}
+                                    keymap={keymap}></FilesGrid>}
                                 {mode===2 && props.editcontrol}
                             </div>
                         </div>
@@ -89,11 +90,12 @@ function WireFrame(props)
 }
 
 function FilesGrid(props){
-    const {filterPredicate, docs, loadForm, gridcolumns, customclass, highlighted, 
+    const {filterPredicate, docs, loadForm, gridcolumns, customclass, highlighted, keymap,
         homeselected, setHomeSelected, homepageTitle, homepageMap, exportToHome, deleteEntries} = props;
     
     const [delselected, setDelselected] = useState({});
     const [filter, setFilter] = useState('');
+    const [grpfilter, setGrpFilter] = useState('');
     const [page_number, setpage_number] = useState(1);
     const [spinner, setSpinner] = useState(false);
     const[postid, setPostId] = useState('');
@@ -102,7 +104,16 @@ function FilesGrid(props){
                                                      (!!homepageTitle ? {exp:true, del:false} : {exp:false, del:true})); 
 
     let page_size= 15;
-    const sortedSet = Object.keys(docs).filter(x=>filterPredicate(x, filter)).sort((x,y)=>x > y);
+    const filterFn = key =>{
+        if(grpfilter.length ===0)
+            return filterPredicate(key, filter);
+        else{
+            if(grpfilter === 'home')
+                return homeselected[key] && !!docs[key]
+        }
+        return true;
+    }
+    const sortedSet = Object.keys(docs).filter(x=>filterFn(x)).sort((x,y)=>x > y);
     const [buttons, setButtons] = useState(Math.ceil(sortedSet.length/page_size))
 
     const paginate = (array) => array.slice((page_number -1) * page_size, page_number * page_size)
@@ -134,6 +145,9 @@ function FilesGrid(props){
     }, [sortedSet, page_size])
 
     const dt = (key)=>{
+        if(keymap)
+            return keymap(key);
+
         if(isNaN(key))
             return key;
         let d = new Date(key*1);
@@ -150,6 +164,12 @@ function FilesGrid(props){
                                 <div className="input-group mr-3 mb-0">
                                     <div className="input-group-prepend"><span className="input-group-text">Filter</span></div>
                                     <input type="text" className="form-control" value={filter} onChange={e=>{setFilter(e.target.value); setpage_number(1);}}   />
+                                </div>
+                                <div className="input-group mr-3 mb-0">
+                                    <select className="custom-select mr-sm-2" onChange={e=>setGrpFilter(e.target.value)}>
+                                        <option selected="">Group Filter</option>
+                                        <option value="home">In Home</option>
+                                    </select>
                                 </div>
                                 <nav>
                                     <ul className="pagination mb-0 mr-3">

@@ -54,7 +54,7 @@ function Events(props){
     const gridcolumns = !!props.gridcolumns ? props.gridcolumns : {heading:val=>gn('Heading', val), liner:val=>gn('Event Desc', val)};
     return(
         <>
-            <WireFrame entries={events} filterPredicate={filterPredicate} setFormobj={setEvent} headerControl={<HeaderControl token={props.token}/>} savePostId={savePostId}
+            <WireFrame entries={events} filterPredicate={filterPredicate} setFormobj={setEvent} headerControl={<HeaderControl token={props.token}/>} 
             highlighted={highlighted} homepageTitle={!!props.homepageTitle ? props.homepageTitle : 'home-page-events'} gridcolumns={gridcolumns} customclass="event-grid"
             deleteEntries={{fn:(obj, isEmpty)=>electronStore.saveEvent(props.filename, props.savefilename,obj,isEmpty), rf:()=>refreshList(clearSelectionHighlights)}}
             editcontrol={
@@ -65,7 +65,7 @@ function Events(props){
 
                     {Object.keys(selections).map(key=> 
                         <EventInputForm key={key} key1={key} selected={selections[key]} 
-                        saveEvent={saveEvent} />
+                        saveEvent={saveEvent} helperText={props.helperText || {}} />
                     )}
                 </div>
             }
@@ -134,15 +134,18 @@ function EventInputForm(props){
                     <input type="text" className={"form-control " + (form.heading.length === 0 && form.trigger ? " is-invalid" : "")}  
                     value={form.heading} onChange={e=>setForm({...form, heading:e.target.value})} />
                     {form.trigger && <div className="invalid-feedback">heading name is required</div>}
+                    {props.helperText['heading'] && <p><small className="form-text text-muted">{props.helperText['heading']}</small></p>}
                 </div>
 
                 <div className="input-group mb-2">
                     <div className="input-group-prepend"><span className="input-group-text">Liner</span></div>
                     <input type="text" className="form-control" value={form.liner} onChange={e=>setForm({...form, liner:e.target.value})}  />
+                    {props.helperText['liner'] && <small className="form-text text-muted">{props.helperText['liner']}</small>}
                 </div>
                 <div className="input-group mb-2">
                     <div className="input-group-prepend"><span className="input-group-text">Thumb</span></div>
                     <input type="text" className="form-control" value={form.thumb} onChange={e=>setForm({...form, thumb:e.target.value})}  />
+                    {props.helperText['thumb'] && <small className="form-text text-muted">{props.helperText['thumb']}</small>}
                 </div>
 
                 <div className="input-group mb-2">
@@ -150,10 +153,12 @@ function EventInputForm(props){
                     <input type="text" className={"form-control " + (form.readmore.length === 0 && form.trigger ? " is-invalid" : "")}  
                     value={form.readmore} onChange={e=>setForm({...form, readmore:e.target.value})}  />
                     {form.trigger && <div className="invalid-feedback">read more link is required</div>}
+                    {props.helperText['readmore'] && <small className="form-text text-muted">{props.helperText['readmore']}</small>}
                 </div>
                 <div className="input-group mb-2">
                     <div className="input-group-prepend"><span className="input-group-text">Tags</span></div>
                     <input type="text" className="form-control" value={!form.tags ? '' : form.tags + ''} onChange={e=>setForm({...form, tags:e.target.value})}  />
+                    {props.helperText['tags'] && <small className="form-text text-muted">{props.helperText['tags']}</small>}
                 </div>
                 
                 <div>
