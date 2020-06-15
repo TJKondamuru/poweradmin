@@ -41,8 +41,9 @@ function Comments(props){
         }
     }
     const gn = (thName, val)=> val==='th'? thName: val;
+    const keymap = cmt => cmt.split('-').slice(2).join('-');
     return (
-        <WireFrame entries={comments} filterPredicate={filterPredicate} setFormobj={setComment} highlighted={highlighted} 
+        <WireFrame entries={comments} filterPredicate={filterPredicate} setFormobj={setComment} highlighted={highlighted} keymap={keymap}
             deleteEntries={{fn:electronStore.saveComment, rf:()=>refreshList(clearSelectionHighlights)}} customclass="comment-grid"
             gridcolumns={{by:val=>gn("User Name", val),text:val=>gn("Comment Desc", val)}}
             editcontrol={

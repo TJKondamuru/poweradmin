@@ -23,7 +23,7 @@ function App(props) {
                     <div className="row">
                         <div className="span12 footer-block">
                             <div className="footer-content" style={{textAlign:"center"}}>
-                                <b>PGW Auto Glass, LLC| 51 Dutilh Road, Suite 310, Cranberry Twp, PA 16066, USA. | ©2019 All Rights Reserved.</b>
+                                <b>Burgh Indian | burghindianit@gmail.com | ©2019 All Rights Reserved.</b>
                             </div>
                         </div>
                     </div>

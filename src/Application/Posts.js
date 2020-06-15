@@ -21,7 +21,7 @@ function Posts(props){
     const filterPredicate = (key, filter)=>{
         if(filter.length === 0) return true;
         let entry = posts[key];
-        return (entry.header.indexOf(filter) > -1);
+        return (entry.header.indexOf(filter) > -1 || entry.owner.indexOf(filter) > -1);
     }
     const refreshList= callback=>{
         electronStore.posts().then(entries=>{
@@ -31,11 +31,11 @@ function Posts(props){
     }
     useEffect(()=>refreshList(()=>{}), []);
     const savePost= (key, post, callback)=>{
-        const {showinlist, visits, showallfiles, premium, files, ip} = post;
+        const {showinlist, visits, showallfiles, premium, files, ip, owner} = post;
         debugger;
         if(!isNaN(visits))
         {
-            const updtobj = {[`${key}.files`]:files, [`${key}.ip`]:ip, [`${key}.showinlist`]:showinlist,[`${key}.visits`]:visits,[`${key}.showallfiles`]:showallfiles, [`${key}.premium`]:premium};
+            const updtobj = {[`${key}.files`]:files, [`${key}.ip`]:ip, [`${key}.owner`]:owner, [`${key}.showinlist`]:showinlist,[`${key}.visits`]:visits,[`${key}.showallfiles`]:showallfiles, [`${key}.premium`]:premium};
             electronStore.savePosts(updtobj, Object.keys(posts).length === 0).then(_=>refreshList(()=>{
                 setSelections({...selections, [key]:{...post, id:key}});
                 setHighlighted({...highlighted, [key]:'table-info'});
@@ -47,7 +47,7 @@ function Posts(props){
     return (
         <WireFrame entries={posts} filterPredicate={filterPredicate} setFormobj={setPost} highlighted={highlighted} 
             deleteEntries={{fn:electronStore.savePosts, rf:()=>refreshList(clearSelectionHighlights)}} customclass="comment-grid"
-            gridcolumns={{header:val=>gn("Post Header", val),text:val=>gn("Visits", val)}}
+            gridcolumns={{header:val=>gn("Post Header", val),visits:val=>gn("Visits", val), owner:val=>gn("Secret", val)}}
             headerControl={<HeaderControl />}
             editcontrol={
                 <div className="row mt-4">
@@ -183,7 +183,12 @@ function Unit(props){
                                 <input type="text" value={!form.ip ? '' : form.ip} onChange={e=>setForm({...form, ip:e.target.value})} style={{'textAlign':'center', 'width':'140px'}}  />
                             </div>
                         </li>
-                        
+                        <li className="list-group-item">
+                            <div className="input-group mb-1">
+                                <div className="input-group-prepend"><span className="input-group-text">Secret</span></div>
+                                <input type="text" value={!form.owner ? '' : form.owner} onChange={e=>setForm({...form, owner:e.target.value})} style={{'textAlign':'center', 'width':'240px'}}  />
+                            </div>
+                        </li>
                         <li className="list-group-item"><b>{dt(form.stamp)}</b></li>
                         <li className="list-group-item">
                             <button className="btn-info btn-sm" onClick={saveUnit}>{spinner && <span className="spinner-border spinner-border-sm"></span>}Save</button>
