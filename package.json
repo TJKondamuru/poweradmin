@@ -43,7 +43,7 @@
     ]
   },
   "devDependencies": {
-    "electron": "^6.0.8"
+    "electron": "^11.5.0"
   },
   "homepage": "./"
 }
